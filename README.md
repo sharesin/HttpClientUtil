@@ -5,7 +5,7 @@ HttpClient tools by only one simple class. Provide *GET,POST,PUT,PATCH,DELETE*.
 
 Maven Dependencies:
 
-``` javascript
+``` xml
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
