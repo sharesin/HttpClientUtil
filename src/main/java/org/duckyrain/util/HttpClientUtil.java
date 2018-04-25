@@ -4,6 +4,7 @@ import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
@@ -26,122 +27,132 @@ import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by DuQiyu on 2018/4/17.
  *
+ * @see <a href="https://github.com/duckyrain/HttpClientUtil">https://github.com/duckyrain/HttpClientUtil</a>
  * Description: The HttpClient Tools based on Apache HttpClient 4.X
+
  * Demo:
- *     HttpClientUtil.GET.invoke("https://github.com/duckyrain", null, Consts.UTF_8)
- *     HttpClientUtil.POST.formData("https://github.com/duckyrain", headers, body, Consts.UTF_8)
+ * HttpClientUtil.GET.invoke(uri, headers, Consts.UTF_8).getStatus()
+ * HttpClientUtil.POST.formData(uri, headers, body, Consts.UTF_8).getStatus()
+ * HttpClientUtil.POST.formUrlencoded(uri, headers, body, Consts.UTF_8).getStatus()
+ * HttpClientUtil.PUT.textPlain(uri, headers, bodyAsString, Consts.UTF_8).getStatus()
+ * HttpClientUtil.PUT.applicationJson(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+ * HttpClientUtil.PATCH.applicationJavascript(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+ * HttpClientUtil.PATCH.applicationXml(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+ * HttpClientUtil.DELETE.textXml(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+ * HttpClientUtil.DELETE.textHtml(uri, headers, bodyAsString, Consts.UTF_8).getContent()
  */
 public enum HttpClientUtil {
     GET {
-        public String invoke(String uri, Map<String, String> headers, Charset charset) throws Exception {
+        public Result invoke(String uri, Map<String, String> headers, Charset charset) throws Exception {
             return get(uri, headers, charset);
         }
     },
     POST {
-        public String formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return post(uri, headers, body, null, CONTENT_TYPE.FORM_DATA, charset);
         }
-        public String formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return post(uri, headers, body, null, CONTENT_TYPE.X_WWW_FORM_URLENCODED, charset);
         }
-        public String textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return post(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_PLAIN, charset);
         }
-        public String applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return post(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JSON, charset);
         }
-        public String applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return post(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JAVASCRIPT, charset);
         }
-        public String applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return post(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_XML, charset);
         }
-        public String textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return post(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_XML, charset);
         }
-        public String textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return post(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_HTML, charset);
         }
     },
     PUT {
-        public String formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return put(uri, headers, body, null, CONTENT_TYPE.FORM_DATA, charset);
         }
-        public String formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return put(uri, headers, body, null, CONTENT_TYPE.X_WWW_FORM_URLENCODED, charset);
         }
-        public String textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return put(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_PLAIN, charset);
         }
-        public String applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return put(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JSON, charset);
         }
-        public String applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return put(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JAVASCRIPT, charset);
         }
-        public String applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return put(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_XML, charset);
         }
-        public String textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return put(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_XML, charset);
         }
-        public String textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return put(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_HTML, charset);
         }
     },
     PATCH {
-        public String formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return patch(uri, headers, body, null, CONTENT_TYPE.FORM_DATA, charset);
         }
-        public String formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return patch(uri, headers, body, null, CONTENT_TYPE.X_WWW_FORM_URLENCODED, charset);
         }
-        public String textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return patch(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_PLAIN, charset);
         }
-        public String applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return patch(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JSON, charset);
         }
-        public String applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return patch(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JAVASCRIPT, charset);
         }
-        public String applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return patch(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_XML, charset);
         }
-        public String textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return patch(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_XML, charset);
         }
-        public String textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return patch(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_HTML, charset);
         }
     },
     DELETE {
-        public String formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return delete(uri, headers, body, null, CONTENT_TYPE.FORM_DATA, charset);
         }
-        public String formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        public Result formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
             return delete(uri, headers, body, null, CONTENT_TYPE.X_WWW_FORM_URLENCODED, charset);
         }
-        public String textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textPlain(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return delete(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_PLAIN, charset);
         }
-        public String applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJson(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return delete(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JSON, charset);
         }
-        public String applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationJavascript(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return delete(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_JAVASCRIPT, charset);
         }
-        public String applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result applicationXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return delete(uri, headers, null, bodyAsString, CONTENT_TYPE.APPLICATION_XML, charset);
         }
-        public String textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textXml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return delete(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_XML, charset);
         }
-        public String textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
+        public Result textHtml(String uri, Map<String, String> headers, String bodyAsString, Charset charset) throws Exception {
             return delete(uri, headers, null, bodyAsString, CONTENT_TYPE.TEXT_HTML, charset);
         }
     };
@@ -164,48 +175,69 @@ public enum HttpClientUtil {
         TEXT_XML,
         TEXT_HTML
     }
-    
-    private static final String FORM_DATA_TYPE = "multipart/form-data";
-    private static final String X_WWW_FORM_URLENCODED_TYPE = "application/x-www-form-urlencoded";
-    private static final String TEXT_PLAIN_TYPE= "text/plain";
-    private static final String APPLICATION_JSON_TYPE= "application/json";
-    private static final String APPLICATION_JAVASCRIPT_TYPE= "application/javascript";
-    private static final String APPLICATION_XML_TYPE= "application/xml";
-    private static final String TEXT_XML_TYPE= "text/xml";
-    private static final String TEXT_HTML_TYPE= "text/html";
 
-    // set your request settings here.
-    static RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(2000).setConnectTimeout(2000).setSocketTimeout(2000).build();
+    public static final String FORM_DATA_TYPE = "multipart/form-data";
+    public static final String X_WWW_FORM_URLENCODED_TYPE = "application/x-www-form-urlencoded";
+    public static final String TEXT_PLAIN_TYPE= "text/plain";
+    public static final String APPLICATION_JSON_TYPE= "application/json";
+    public static final String APPLICATION_JAVASCRIPT_TYPE= "application/javascript";
+    public static final String APPLICATION_XML_TYPE= "application/xml";
+    public static final String TEXT_XML_TYPE= "text/xml";
+    public static final String TEXT_HTML_TYPE= "text/html";
 
-    public String invoke(String uri, Map<String, String> headers, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String textPlain(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String applicationJson(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String applicationJavascript(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String applicationXml(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String textXml(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
-    }
-    public String textHtml(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
-        throw new AbstractMethodError();
+    // set request settings here. Recommended to read configuration from config file.
+    static RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(5000)
+                                                                .setConnectTimeout(5000)
+                                                                .setSocketTimeout(5000).build();
+    // set client settings here. Recommended to read configuration from config file.
+    static CloseableHttpClient client = HttpClients.custom().setMaxConnPerRoute(100)
+                                                            .setMaxConnTotal(1000)
+                                                            .setConnectionTimeToLive(30, TimeUnit.SECONDS)
+                                                            .evictIdleConnections(30, TimeUnit.SECONDS)
+                                                            .build();
+
+    public static class Result {
+        private int status;
+        private String content;
+
+        Result(int status, String content) {
+            this.status = status;
+            this.content = content;
+        }
+        public int getStatus() {return this.status;}
+        public String getContent() {return this.content;}
     }
 
-    static String get(String uri, Map<String, String> headers, Charset charset) throws Exception {
+
+    public Result invoke(String uri, Map<String, String> headers, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result formData(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result formUrlencoded(String uri, Map<String, String> headers, Map<String, String> body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result textPlain(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result applicationJson(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result applicationJavascript(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result applicationXml(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result textXml(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+    public Result textHtml(String uri, Map<String, String> headers, String body, Charset charset) throws Exception {
+        throw new AbstractMethodError();
+    }
+
+    static Result get(String uri, Map<String, String> headers, Charset charset) throws Exception {
         assert (null != uri && uri.trim().length() > 0);
         if (null == charset) {
             charset = Consts.UTF_8;
@@ -214,7 +246,7 @@ public enum HttpClientUtil {
         return execute(uri, request, charset);
     }
 
-    static String post(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
+    static Result post(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
                        CONTENT_TYPE contentType, Charset charset) throws Exception {
         assert (null != uri && uri.trim().length() > 0);
         if (null == charset) {
@@ -224,7 +256,7 @@ public enum HttpClientUtil {
         return execute(uri, request, charset);
     }
 
-    static String put(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
+    static Result put(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
                       CONTENT_TYPE contentType, Charset charset) throws Exception {
         assert (null != uri && uri.trim().length() > 0);
         if (null == charset) {
@@ -234,7 +266,7 @@ public enum HttpClientUtil {
         return execute(uri, request, charset);
     }
 
-    static String patch(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
+    static Result patch(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
                         CONTENT_TYPE contentType, Charset charset) throws Exception {
         assert (null != uri && uri.trim().length() > 0);
         if (null == charset) {
@@ -244,7 +276,7 @@ public enum HttpClientUtil {
         return execute(uri, request, charset);
     }
 
-    static String delete(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
+    static Result delete(String uri, Map<String, String> headers, Map<String, String> body, String bodyAsString,
                          CONTENT_TYPE contentType, Charset charset) throws Exception {
         assert (null != uri && uri.trim().length() > 0);
         if (null == charset) {
@@ -254,19 +286,18 @@ public enum HttpClientUtil {
         return execute(uri, request, charset);
     }
 
-    static String execute(String uri, HttpRequestBase request, Charset charset) throws Exception {
-        String result = null;
-        CloseableHttpClient client = null;
+    static Result execute(String uri, HttpRequestBase request, Charset charset) throws Exception {
+        Result result = null;
         CloseableHttpResponse response = null;
         try {
-            client = HttpClients.createDefault();
             response = client.execute(request);
-            logger.debug("uri:{}, statusCode:{}", uri, response.getStatusLine().getStatusCode());
-            if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 400) {
-                result = EntityUtils.toString(response.getEntity(), charset);
-            } else {
-                logger.debug("HTTP status exception. The response is:{}", EntityUtils.toString(response.getEntity(), charset));
+            int status = response.getStatusLine().getStatusCode();
+            String content = EntityUtils.toString(response.getEntity(), charset);
+            logger.debug("uri:{}, statusCode:{}", uri, status);
+            if (status < 200 || status > 400) {
+                logger.debug("HTTP exception, statusCode:{}, content:{}", status, content);
             }
+            result = new Result(status, content);
         } catch (Exception e) {
             logger.error("", e);
         } finally {
