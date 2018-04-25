@@ -20,12 +20,12 @@ Maven Dependencies:
 
 Demo:
 
-- HttpClientUtil.GET.invoke(uri, headers, Consts.UTF_8)
-- HttpClientUtil.POST.formData(uri, headers, body, Consts.UTF_8)
-- HttpClientUtil.POST.formUrlencoded(uri, headers, body, Consts.UTF_8)
-- HttpClientUtil.PUT.textPlain(uri, headers, bodyAsString, Consts.UTF_8)
-- HttpClientUtil.PUT.applicationJson(uri, headers, bodyAsString, Consts.UTF_8)
-- HttpClientUtil.PATCH.applicationJavascript(uri, headers, bodyAsString, Consts.UTF_8)
-- HttpClientUtil.PATCH.applicationXml(uri, headers, bodyAsString, Consts.UTF_8)
-- HttpClientUtil.DELETE.textXml(uri, headers, bodyAsString, Consts.UTF_8)
-- HttpClientUtil.DELETE.textHtml(uri, headers, bodyAsString, Consts.UTF_8)
+- HttpClientUtil.GET.invoke(uri, headers, Consts.UTF_8).getStatus()
+- HttpClientUtil.POST.formData(uri, headers, body, Consts.UTF_8).getStatus()
+- HttpClientUtil.POST.formUrlencoded(uri, headers, body, Consts.UTF_8).getStatus()
+- HttpClientUtil.PUT.textPlain(uri, headers, bodyAsString, Consts.UTF_8).getStatus()
+- HttpClientUtil.PUT.applicationJson(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+- HttpClientUtil.PATCH.applicationJavascript(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+- HttpClientUtil.PATCH.applicationXml(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+- HttpClientUtil.DELETE.textXml(uri, headers, bodyAsString, Consts.UTF_8).getContent()
+- HttpClientUtil.DELETE.textHtml(uri, headers, bodyAsString, Consts.UTF_8).getContent()
