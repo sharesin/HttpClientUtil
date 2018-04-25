@@ -40,5 +40,4 @@
             <version>${slf4j_version}</version>
         </dependency>
     </dependencies>
-
 </project>
