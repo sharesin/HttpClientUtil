@@ -300,6 +300,7 @@ public enum HttpClientUtil {
             result = new Result(status, content);
         } catch (Exception e) {
             logger.error("", e);
+            result = new Result(0, e.getMessage());
         } finally {
             if (null != response) {
                 EntityUtils.consume(response.getEntity());
@@ -361,6 +362,7 @@ public enum HttpClientUtil {
         } else {
             throw new NoSuchMethodError("method is not allowed.");
         }
+        httpBase.setConfig(requestConfig);
         httpBase.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, getMimeType(contentType)));
         httpBase.setHeaders(partHeaders(headers, charset));
         httpBase.setEntity(partEntity(body, bodyAsString, contentType, charset));
@@ -396,7 +398,7 @@ public enum HttpClientUtil {
                 }
                 return builder.build();
             } else if (CONTENT_TYPE.X_WWW_FORM_URLENCODED == contentType) {
-                List<NameValuePair> params = new LinkedList<NameValuePair>();
+                List<NameValuePair> params = new LinkedList<>();
                 for (Map.Entry<String, String> entry : body.entrySet()) {
                     params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
                 }
